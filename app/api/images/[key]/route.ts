@@ -1,0 +1,3 @@
+import {env} from 'cloudflare:workers';
+export const dynamic='force-dynamic';
+export async function GET(_request:Request,{params}:{params:Promise<{key:string}>}){const {key}=await params;if(!/^[0-9a-f-]{36}\.(jpg|png|webp)$/.test(key))return new Response('Not found',{status:404});const file=await (env as unknown as {BUCKET:R2Bucket}).BUCKET.get(key);if(!file)return new Response('Not found',{status:404});return new Response(file.body,{headers:{'Content-Type':file.httpMetadata?.contentType||'application/octet-stream','Cache-Control':'public, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'}});}
